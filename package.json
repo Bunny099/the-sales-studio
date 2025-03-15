@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "sales_studio",
   "private": true,
   "scripts": {
     "build": "turbo run build",
