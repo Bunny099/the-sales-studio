@@ -3,11 +3,21 @@ import { useState, useEffect } from "react";
 import { getAdminCoupons } from "@/lib/api";
 
 
-import axios from "axios";
+interface ClaimedBy{
+  ip:string,
+  cookie:string,
+  timeStamp:string
+}
+interface Coupon{
+  coupon:string,
+  isActive:Boolean,
+  isClaimed:Boolean,
+  claimedBy:ClaimedBy[];
+}
 
 export function Dashboard() {
   
-  const [coupons, setCoupons] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
 
   
 
@@ -58,7 +68,7 @@ export function Dashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {coupon.claimedBy.map((claim,i)=>(
+                          {coupon.claimedBy.map((claim:ClaimedBy,i)=>(
                             <tr key={i}>
                               <td className="border border-gray-200 p-1 whitespace-nowrap text-sm w-28">{claim.ip}</td>
                               <td className="border border-gray-200 p-1 overflow-hidden text-ellipsis max-w-xs ">{claim.cookie}</td>

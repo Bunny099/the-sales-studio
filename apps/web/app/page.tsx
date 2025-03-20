@@ -39,7 +39,7 @@ export default function Home() {
             alt=""
           />
         </div>
-        <div className="min-h-screen flex flex-col md:flex-row  bg-green-200 items-center justify-around sm:justify-around  my-2 rounded-lg p-6 ">
+        <div className="min-h-screen flex flex-col md:flex-row  bg-gray-200 items-center justify-around sm:justify-around  my-2 rounded-lg p-6 ">
           <div className="w-full sm:w-1/2 flex justify-center">
             <img
               className="w-[90%] rounded-xl sm:w-[450px]"

@@ -1,64 +1,72 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import { AdminModel, CouponModel, systemModel } from "./database";
 import cookieParser from "cookie-parser";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import dotenv from "dotenv"
 
-
+dotenv.config()
 const app = express();
-mongoose.connect(
-  "mongodb+srv://jayeshkhuman121:yBWr0BLnkAggoI2V@cluster0.wq2fc.mongodb.net/tss"
-);
+
+const PORT = process.env.PORT || 3001;
+mongoose.connect(process.env.MONGO_URI as string, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+} as any).then(() => console.log("Mongodb connected")).catch((err) => console.error("Mongodb connection erroer:", err));
+
+
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URl || "http://localhost:3000", credentials: true }));
+
 app.use(cookieParser());
 app.set("trust proxy", true)
 
-//@ts-ignore
 
-app.post("/api/claim", async (req, res) => {
-  let ip = 
-        req.headers['cf-connecting-ip'] ||  
-        req.headers['x-real-ip'] ||
-        req.headers['x-forwarded-for'] ||
-        req.socket.remoteAddress || '';
-        if(ip === "::1"){ ip = "127.0.01"}
+
+app.post("/api/claim", async (req: Request, res: Response) => {
+  let ip =
+    req.headers['cf-connecting-ip'] ||
+    req.headers['x-real-ip'] ||
+    req.headers['x-forwarded-for'] ||
+    req.socket.remoteAddress || '';
+  if (ip === "::1") { ip = "127.0.01" }
   let cookie = req.cookies.user_id;
   console.log("cookie recived:", req.cookies)
-  if(!cookie){
+  if (!cookie) {
     cookie = uuidv4();
-    res.cookie("user_id",cookie,{
-      "httpOnly":true,
-      secure:false,
-      sameSite:"lax",
-      "maxAge": 1 * 24 *60*60*1000
+    res.cookie("user_id", cookie, {
+      "httpOnly": true,
+      secure: false,
+      sameSite: "lax",
+      "maxAge": 1 * 24 * 60 * 60 * 1000
 
     });
     console.log(`cookie is: ${cookie}`)
-  }else{
+  } else {
     console.log(`existing cookie not found`)
 
   }
-  
+
   try {
     const existingClaim = await CouponModel.findOne({
       "claimedBy": {
-        $elemMatch:{
-          ip:ip,
-          cookie:cookie,
-          timeStamp:{$gt:new Date(Date.now() - 10 *  60 * 1000)}
+        $elemMatch: {
+          ip: ip,
+          cookie: cookie,
+          timeStamp: { $gt: new Date(Date.now() - 10 * 60 * 1000) }
         }
       }
-     
+
     });
 
     if (existingClaim) {
-      return res
+       res
         .status(400)
         .json({
           message: "you have already claimed the coupon try after sometime!",
         });
+        return;
     }
     //  Find the next available coupon (Round-Robin)
     let system = await systemModel.findOne();
@@ -100,7 +108,8 @@ app.post("/api/claim", async (req, res) => {
       )
     }
     if (!nextCoupon || !nextCoupon.coupon) {
-      return res.status(400).json({ message: "No more coupons available." });
+      res.status(400).json({ message: "No more coupons available." });
+      return;
     }
     //assign the coupon to user
 
@@ -117,25 +126,26 @@ app.post("/api/claim", async (req, res) => {
       .json({
         message: "coupon claimed succussfully!",
         coupon: nextCoupon.coupon,
-        cookie:cookie,
-        ip:ip
+        cookie: cookie,
+        ip: ip
       });
   } catch (error) {
     console.error("error while claiming!", error);
 
-    return res.status(400).json({ message: "internal server error!" });
+     res.status(400).json({ message: "internal server error!" });
   }
 });
-//@ts-ignore
 
-app.post("/api/admin/login", async (req, res) => {
+
+app.post("/api/admin/login", async (req:Request, res:Response) => {
   const { username, password } = req.body;
   try {
     const admin = await AdminModel.findOne({ username, password });
     if (!admin) {
-      return res
+      res
         .status(401)
         .json({ success: false, message: "invalid credential" });
+        return;
     }
     res.status(200).json({ success: true, message: "login successful", admin });
   } catch (error) {
@@ -171,23 +181,10 @@ app.post("/api/admin/add", async (req, res) => {
       .json({ success: false, message: "error while adding coupon" });
   }
 });
-// app.get("/api/test-ip", (req, res) => {
-//   let ip = 
-//         req.headers['cf-connecting-ip'] ||  
-//         req.headers['x-real-ip'] ||
-//         req.headers['x-forwarded-for'] ||
-//         req.socket.remoteAddress || '';
-//         if(ip === "::1"){ ip = "127.0.01"}
-  
-//   res.json({ ip });
-// });
 
-app.listen(3001);
 
-//1.user claim the coupon
-// 2.request come to the api/coupon/claim where frist its check the ip and cookie with previous data-
-// base.
-// 3.and if it new user available coupon should me allot to him , next store the current users ip and
-// cookie to database and which coupons is allotted to him.
-// 4. update the system model with next availale coupon.
-// 5. and cool-down time for user who claim the coupon for next 10 min he/she cant claim again.
+app.listen(PORT, () => {
+  console.log(`Server is running on: ${PORT}`)
+});
+
+
