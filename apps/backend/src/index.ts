@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { AdminModel, CouponModel, systemModel } from "./database";
 import cookieParser from "cookie-parser";
 import { v4 as uuidv4 } from 'uuid';
-import dotenv from "dotenv"
+import * as dotenv from 'dotenv';
 
 dotenv.config()
 const app = express();
