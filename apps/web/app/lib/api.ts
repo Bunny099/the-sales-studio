@@ -33,7 +33,7 @@ export const adminLogin= async( username:string, password:string)=>{
 //geting coupons
 export const getAdminCoupons= async ()=>{
     try{
-        const response = await api.get("admin/coupons");
+        const response = await api.get("/admin/coupons");
         console.log("in api.ts get admincoups:",response.data)
         return response.data;
     }catch(error){
@@ -43,7 +43,7 @@ export const getAdminCoupons= async ()=>{
 //add Coupon
 export const addCoupon = async ()=>{
     try{
-        const response = await api.post("admin/add/");
+        const response = await api.post("/admin/add/");
     }catch(error){
 
     }

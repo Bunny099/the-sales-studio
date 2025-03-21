@@ -13,9 +13,16 @@ const PORT = Number(process.env.PORT) || 3001;
 
 mongoose.connect(process.env.MONGO_URI as string).then(() => console.log("Mongodb connected")).catch((err) => console.error("Mongodb connection erroer:", err));
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://the-sales-studio-web.vercel.app");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 
 app.use(express.json());
-app.use(cors({ origin:[process.env.CLIENT_URL || "http://localhost:3000", "https://the-sales-studio-web.vercel.app/"],
+app.use(cors({  origin: "https://the-sales-studio-web.vercel.app",
   credentials:true ,
   methods:["GET","POST","PUT","DELETE"],
   allowedHeaders:["Content-Type", "Authorization"]
@@ -49,7 +56,8 @@ app.post("/api/claim", async (req: Request, res: Response) => {
       "httpOnly": true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "none",
-      domain:process.env.CLIENT_URL ? new URL(process.env.CLIENT_URL).hostname : undefined,
+      domain: ".the-sales-studio-web.vercel.app"
+,
       "maxAge": 1 * 24 * 60 * 60 * 1000
 
     });
