@@ -13,24 +13,25 @@ const PORT = Number(process.env.PORT) || 3001;
 
 mongoose.connect(process.env.MONGO_URI as string).then(() => console.log("Mongodb connected")).catch((err) => console.error("Mongodb connection erroer:", err));
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://the-sales-studio-web.vercel.app");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+//   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//   next();
+// });
 
 app.use(express.json());
-app.use(cors({  origin: "https://the-sales-studio-web.vercel.app",
-  credentials:true ,
-  methods:["GET","POST","PUT","DELETE"],
-  allowedHeaders:["Content-Type", "Authorization"]
+app.use(cors({
+  origin: "https://the-sales-studio-web.vercel.app",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 
 }));
 
 app.use(cookieParser());
-app.set("trust proxy", 1)
+app.set("trust proxy", true)
 
 
 
@@ -55,9 +56,9 @@ app.post("/api/claim", async (req: Request, res: Response) => {
     res.cookie("user_id", cookie, {
       "httpOnly": true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      domain: ".the-sales-studio-web.vercel.app"
-,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      domain: process.env.NODE_ENV === "production" ? "https://the-sales-studio-web.vercel.app/":undefined
+      ,
       "maxAge": 1 * 24 * 60 * 60 * 1000
 
     });
@@ -202,7 +203,7 @@ app.post("/api/admin/add", async (req, res) => {
 });
 
 
-app.listen(PORT,'0.0.0.0',() => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on: ${PORT}`)
 });
 
