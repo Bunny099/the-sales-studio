@@ -9,19 +9,27 @@ import * as dotenv from 'dotenv';
 dotenv.config()
 const app = express();
 
-const PORT = process.env.PORT || 3001;
-mongoose.connect(process.env.MONGO_URI as string, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-} as any).then(() => console.log("Mongodb connected")).catch((err) => console.error("Mongodb connection erroer:", err));
+const PORT = Number(process.env.PORT) || 3001;
+
+mongoose.connect(process.env.MONGO_URI as string).then(() => console.log("Mongodb connected")).catch((err) => console.error("Mongodb connection erroer:", err));
 
 
 app.use(express.json());
-app.use(cors({ origin:[process.env.CLIENT_URL || "https://localhost:3000", "https://the-sales-studio.up.railway.app"],credentials:true }));
+app.use(cors({ origin:[process.env.CLIENT_URL || "http://localhost:3000", "https://the-sales-studio-web.vercel.app/"],
+  credentials:true ,
+  methods:["GET","POST","PUT","DELETE"],
+  allowedHeaders:["Content-Type", "Authorization"]
+
+}));
 
 app.use(cookieParser());
 app.set("trust proxy", 1)
 
+
+
+app.get("/", (req, res) => {
+  res.send("Backend is running!");
+});
 
 
 app.post("/api/claim", async (req: Request, res: Response) => {
@@ -30,7 +38,9 @@ app.post("/api/claim", async (req: Request, res: Response) => {
     req.headers['x-real-ip'] ||
     req.headers['x-forwarded-for'] ||
     req.socket.remoteAddress || '';
+
   if (ip === "::1") { ip = "127.0.01" }
+
   let cookie = req.cookies.user_id;
   console.log("cookie recived:", req.cookies)
   if (!cookie) {
@@ -39,6 +49,7 @@ app.post("/api/claim", async (req: Request, res: Response) => {
       "httpOnly": true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "none",
+      domain:process.env.CLIENT_URL ? new URL(process.env.CLIENT_URL).hostname : undefined,
       "maxAge": 1 * 24 * 60 * 60 * 1000
 
     });
@@ -183,7 +194,7 @@ app.post("/api/admin/add", async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0',() => {
   console.log(`Server is running on: ${PORT}`)
 });
 
