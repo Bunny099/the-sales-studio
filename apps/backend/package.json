@@ -9,7 +9,7 @@
     "dev": "npm run build && npm run start"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    
     "@types/express": "^5.0.0"
   },
   "keywords": [],
