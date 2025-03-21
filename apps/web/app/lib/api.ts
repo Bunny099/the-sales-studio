@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const BASE_API = process.env.NEXT_PUBLIC_BACKEND_URL || "https://the-sales-studio.up.railway.app/api";
-const BASE_API = "https://the-sales-studio.up.railway.app/api"
+const BASE_API = "http://localhost:3001"
 
 const api = axios.create({baseURL:BASE_API,withCredentials:true});
 
