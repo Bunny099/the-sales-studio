@@ -51,18 +51,15 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      typescript:
+        specifier: 5.8.2
+        version: 5.8.2
 
   apps/web:
     dependencies:
-      '@repo/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@tailwindcss/postcss':
         specifier: ^4.0.14
         version: 4.0.14
