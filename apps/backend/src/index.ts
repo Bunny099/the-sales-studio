@@ -17,7 +17,7 @@ mongoose.connect(process.env.MONGO_URI as string, {
 
 
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URl || "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URl || "https://localhost:3000","https://the-sales-studio.up.railway.app" ,credentials: true }));
 
 app.use(cookieParser());
 app.set("trust proxy", true)
@@ -61,12 +61,12 @@ app.post("/api/claim", async (req: Request, res: Response) => {
     });
 
     if (existingClaim) {
-       res
+      res
         .status(400)
         .json({
           message: "you have already claimed the coupon try after sometime!",
         });
-        return;
+      return;
     }
     //  Find the next available coupon (Round-Robin)
     let system = await systemModel.findOne();
@@ -132,12 +132,12 @@ app.post("/api/claim", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("error while claiming!", error);
 
-     res.status(400).json({ message: "internal server error!" });
+    res.status(400).json({ message: "internal server error!" });
   }
 });
 
 
-app.post("/api/admin/login", async (req:Request, res:Response) => {
+app.post("/api/admin/login", async (req: Request, res: Response) => {
   const { username, password } = req.body;
   try {
     const admin = await AdminModel.findOne({ username, password });
@@ -145,7 +145,7 @@ app.post("/api/admin/login", async (req:Request, res:Response) => {
       res
         .status(401)
         .json({ success: false, message: "invalid credential" });
-        return;
+      return;
     }
     res.status(200).json({ success: true, message: "login successful", admin });
   } catch (error) {
