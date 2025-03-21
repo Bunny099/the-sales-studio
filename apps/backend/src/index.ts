@@ -17,10 +17,10 @@ mongoose.connect(process.env.MONGO_URI as string, {
 
 
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URl || "https://localhost:3000","https://the-sales-studio.up.railway.app" ,credentials: true }));
+app.use(cors({ origin:[process.env.CLIENT_URL || "https://localhost:3000", "https://the-sales-studio.up.railway.app"],credentials:true }));
 
 app.use(cookieParser());
-app.set("trust proxy", true)
+app.set("trust proxy", 1)
 
 
 
@@ -37,8 +37,8 @@ app.post("/api/claim", async (req: Request, res: Response) => {
     cookie = uuidv4();
     res.cookie("user_id", cookie, {
       "httpOnly": true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
       "maxAge": 1 * 24 * 60 * 60 * 1000
 
     });
